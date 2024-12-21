@@ -1,12 +1,14 @@
 'use strict';
 require('dotenv').config();
 const express     = require('express');
+const helmet = require('helmet');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
+require("./db-connection")
 
 const app = express();
 
@@ -16,6 +18,18 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// Security Headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      frameAncestors: ["'self'"], // Allow only self-hosted iframes
+    },
+  },
+  dnsPrefetchControl: { allow: false },
+  referrerPolicy: { policy: 'same-origin' },
+}));
+
 
 //Sample front-end
 app.route('/b/:board/')
